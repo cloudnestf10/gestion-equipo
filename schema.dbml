@@ -1,0 +1,133 @@
+// ═══════════════════════════════════════
+// BLOQUE 1: CATÁLOGOS (Diccionarios)
+// ═══════════════════════════════════════
+
+Table Categorias {
+  id      integer [primary key, increment]
+  nombre  varchar [not null, unique] // Laptop, Cámara, Micrófono...
+}
+
+Table Estados {
+  id      integer [primary key, increment]
+  nombre  varchar [not null, unique] // Funcional, Dañado, Baja, Cambio por Garantía
+}
+
+Table Cat_Tipo_Movimiento {
+  id          integer [primary key, increment]
+  nombre      varchar [not null, unique] // Alta, Asignación, Retorno, Envío a Taller, Traslado, Baja
+  descripcion text
+}
+
+Table Tipo_Espacio {
+  id      integer [primary key, increment]
+  nombre  varchar [not null] // Site, Cuarto de Control, Sala, Pasillo
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 2: ESTRUCTURA FÍSICA
+// ═══════════════════════════════════════
+
+Table Inmuebles {
+  id      integer [primary key, increment]
+  nombre  varchar [not null, unique] // Reclusorio Oriente, Sullivan, Plaza Juárez...
+}
+
+Table Ubicaciones {
+  id                integer [primary key, increment]
+  inmueble_id       integer [not null, ref: > Inmuebles.id]
+  tipo_espacio_id   integer [not null, ref: > Tipo_Espacio.id]
+  piso              varchar          // Piso 1, Planta Baja...
+  nombre_especifico varchar          // Rack A, Sala 1, Consola 2...
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 3: CONTRATOS
+// ═══════════════════════════════════════
+
+Table Contratos {
+  id               integer [primary key, increment]
+  numero_contrato  varchar [not null, unique]  // CONT-2024-001
+  descripcion      text
+  activo           boolean [default: true]
+  created_at       timestamp [default: `now()`]
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 4: PERSONAL
+// ═══════════════════════════════════════
+
+Table Roles {
+  id      integer [primary key, increment]
+  nombre  varchar [not null, unique] // admin, operador
+}
+
+Table Colaboradores {
+  id          uuid [primary key]   // Vinculado a auth.users de Supabase
+  nombre      varchar [not null]
+  email       varchar [unique, not null]
+  rol_id      integer [not null, ref: > Roles.id]
+  activo      boolean [default: true]
+  created_at  timestamp [default: `now()`]
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 5: EQUIPOS (El Corazón)
+// ═══════════════════════════════════════
+
+Table Equipos {
+  id_interno          integer [primary key, increment]
+  id_inventario       varchar [unique]              // Nullable — se llena después
+  serie               varchar [unique]
+  categoria_id        integer [not null, ref: > Categorias.id]
+  marca               varchar [not null]
+  modelo              varchar [not null]
+  estado_actual_id    integer [not null, ref: > Estados.id]
+  ubicacion_actual_id integer [not null, ref: > Ubicaciones.id]
+  contrato_id         integer [ref: > Contratos.id] // Nullable — no todos tienen contrato
+  asignado_a          uuid [ref: > Colaboradores.id]  // Responsable actual
+  created_by          uuid [not null, ref: > Colaboradores.id] // Quién lo registró
+  foto_url            text
+  fecha_ingreso       timestamp [default: `now()`]
+  updated_at          timestamp [default: `now()`]
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 6: MOVIMIENTOS (Trazabilidad)
+// ═══════════════════════════════════════
+
+Table Movimientos {
+  id                     integer [primary key, increment]
+  equipo_id              integer [not null, ref: > Equipos.id_interno]
+  tipo_movimiento_id     integer [not null, ref: > Cat_Tipo_Movimiento.id]
+
+  // Rastro de Ubicación
+  ubicacion_origen_id    integer [not null, ref: > Ubicaciones.id]
+  ubicacion_destino_id   integer [not null, ref: > Ubicaciones.id]
+
+  // Rastro de Estado
+  estado_origen_id       integer [not null, ref: > Estados.id]
+  estado_destino_id      integer [not null, ref: > Estados.id]
+
+  // Actores
+  responsable_destino_id uuid [ref: > Colaboradores.id]  // A quién se entregó
+  usuario_registro_id    uuid [not null, ref: > Colaboradores.id] // Quién capturó
+
+  fecha_movimiento       timestamp [default: `now()`]
+  notas                  text
+}
+
+// ═══════════════════════════════════════
+// BLOQUE 7: BITÁCORA (Auditoría Digital)
+// ═══════════════════════════════════════
+
+Table Bitacora {
+  id               integer [primary key, increment]
+  tabla_afectada   varchar [not null]  // 'Equipos', 'Colaboradores', 'Ubicaciones'...
+  registro_id      varchar [not null]  // varchar para aceptar integer y uuid
+  campo_modificado varchar [not null]  // 'estado_actual_id', 'ubicacion_actual_id'...
+  valor_anterior   text                // Valor antes del cambio
+  valor_nuevo      text                // Valor después del cambio
+  usuario_id       uuid [ref: > Colaboradores.id]
+  accion           varchar [not null]  // INSERT, UPDATE, DELETE
+  fecha_cambio     timestamp [default: `now()`]
+}

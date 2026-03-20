@@ -1,0 +1,429 @@
+/*
+  ╔══════════════════════════════════════════════════════════╗
+  ║                    GLOBAL.CSS                            ║
+  ║                                                          ║
+  ║  Estilos COMPARTIDOS entre todas las pantallas.          ║
+  ║  Si cambias algo aquí se actualiza en todo el sistema.   ║
+  ║                                                          ║
+  ║  Cada HTML lo importa así:                               ║
+  ║  <link rel="stylesheet" href="css/global.css">           ║
+  ╚══════════════════════════════════════════════════════════╝
+*/
+
+/* ═══════════════════════════════════════════════
+   1. FUENTE EXTERNA
+   Importamos DM Sans desde Google Fonts.
+   400=normal, 500=medio, 600=seminegrita
+*/
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+
+
+/* ═══════════════════════════════════════════════
+   2. VARIABLES DE COLOR Y TAMAÑO
+   ═══════════════════════════════════════════════
+   Definidas en :root están disponibles en TODA
+   la página con var(--nombre).
+   Cambiar un color aquí lo actualiza en todo.
+*/
+:root {
+  --principal:   #195852;  /* Verde oscuro  — botones, títulos          */
+  --secundario:  #1E9282;  /* Verde medio   — acentos, badges           */
+  --claro:       #889693;  /* Gris verdoso  — textos secundarios        */
+  --fondo:       #F4F7F6;  /* Gris muy claro — fondo de páginas         */
+  --blanco:      #FFFFFF;  /* Blanco puro   — fondo de cards            */
+  --texto:       #1B1B1B;  /* Negro suave   — texto principal           */
+  --texto-suave: #6C757D;  /* Gris medio    — subtítulos                */
+  --error:       #DC3545;  /* Rojo          — errores y baja            */
+  --borde:       #E2E8E7;  /* Gris claro    — bordes y líneas           */
+  --navbar-h:    60px;     /* Altura fija del navbar                    */
+}
+
+
+/* ═══════════════════════════════════════════════
+   3. RESET BÁSICO
+   ═══════════════════════════════════════════════
+   Elimina márgenes y paddings por defecto del navegador.
+   box-sizing: border-box = el padding se incluye
+   DENTRO del ancho, no lo agranda.
+*/
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  min-height: 100vh; /* fondo cubre toda la pantalla */
+}
+
+
+/* ═══════════════════════════════════════════════
+   4. NAVBAR
+   ═══════════════════════════════════════════════
+   position: sticky + top: 0 = se queda pegado arriba.
+   z-index: 100 = siempre visible sobre el contenido.
+*/
+.navbar {
+  height: var(--navbar-h);
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.navbar-left { display: flex; align-items: center; gap: 32px; }
+
+.logo {
+  font-size: 15px; font-weight: 600;
+  color: var(--principal); text-decoration: none;
+  white-space: nowrap; /* evita que se parta en dos líneas */
+}
+
+.logo span { color: var(--secundario); }
+
+/* Lista de links de navegación */
+.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+
+.nav-links a {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 7px;
+  font-size: 13px; font-weight: 500;
+  color: var(--texto-suave); text-decoration: none;
+  transition: all 0.15s;
+}
+
+/* currentColor hereda el color del texto del elemento */
+.nav-links a svg {
+  width: 15px; height: 15px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.nav-links a:hover { background: var(--fondo); color: var(--principal); }
+
+/*
+  Clase "active" — marca la sección actual.
+  Se agrega manualmente en cada HTML.
+  Ej: en equipos.html → <a class="active">Equipos</a>
+*/
+.nav-links a.active {
+  background: rgba(25,88,82,0.08);
+  color: var(--principal); font-weight: 600;
+}
+
+.navbar-right { display: flex; align-items: center; gap: 16px; }
+
+.user-info {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; padding: 6px 10px; border-radius: 8px;
+  transition: background 0.15s;
+}
+.user-info:hover { background: var(--fondo); }
+
+/*
+  Avatar circular con gradiente diagonal de
+  verde oscuro a verde medio.
+*/
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--principal), var(--secundario));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: white;
+  flex-shrink: 0; /* no se encoge en espacios pequeños */
+}
+
+.user-name { font-size: 13px; font-weight: 500; color: var(--texto); }
+.user-rol  { font-size: 11px; color: var(--claro); }
+
+/* Botón Salir — borde rojo al pasar el mouse */
+.btn-salir {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border: 1.5px solid var(--borde); border-radius: 7px;
+  background: none; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--texto-suave);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-salir svg {
+  width: 14px; height: 14px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.btn-salir:hover { border-color: var(--error); color: var(--error); }
+
+
+/* ═══════════════════════════════════════════════
+   5. BREADCRUMB — Ruta de navegación
+   ═══════════════════════════════════════════════
+   Muestra dónde estás: Equipos → EQ-089 → Detalle
+*/
+.breadcrumb {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 20px; font-size: 13px;
+}
+.breadcrumb a { color: var(--secundario); text-decoration: none; font-weight: 500; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb svg {
+  width: 13px; height: 13px; stroke: var(--claro); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.breadcrumb span { color: var(--texto-suave); } /* página actual sin link */
+
+
+/* ═══════════════════════════════════════════════
+   6. ENCABEZADO DE PÁGINA
+*/
+.page-title   { font-size: 20px; font-weight: 600; color: var(--principal); margin-bottom: 4px; }
+.page-subtitle { font-size: 13px; color: var(--texto-suave); }
+
+
+/* ═══════════════════════════════════════════════
+   7. BADGES — Etiquetas de estado
+   ═══════════════════════════════════════════════
+   ::before agrega un punto de color sin HTML extra.
+   Uso: <span class="badge funcional">Funcional</span>
+*/
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 500;
+}
+.badge::before {
+  content: ''; width: 5px; height: 5px;
+  border-radius: 50%; flex-shrink: 0;
+}
+
+.badge.funcional         { background: rgba(30,146,130,0.1);  color: var(--secundario); }
+.badge.funcional::before { background: var(--secundario); }
+
+.badge.danado            { background: rgba(245,158,11,0.1);  color: #D97706; }
+.badge.danado::before    { background: #F59E0B; }
+
+.badge.baja              { background: rgba(220,53,69,0.1);   color: var(--error); }
+.badge.baja::before      { background: var(--error); }
+
+.badge.garantia          { background: rgba(136,150,147,0.15); color: var(--claro); }
+.badge.garantia::before  { background: var(--claro); }
+
+
+/* ═══════════════════════════════════════════════
+   8. CAMPOS DE FORMULARIO
+   ═══════════════════════════════════════════════
+   Estilos base compartidos para todos los inputs.
+*/
+.campo { display: flex; flex-direction: column; gap: 7px; }
+
+label { font-size: 13px; font-weight: 500; color: var(--texto); }
+
+.requerido { color: var(--secundario); margin-left: 2px; }
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--borde); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--texto); background: var(--blanco);
+  transition: border-color 0.2s;
+  outline: none; /* quitamos el borde azul del navegador */
+}
+
+/* Borde verde al enfocar el campo */
+input:focus, select:focus, textarea:focus { border-color: var(--secundario); }
+input::placeholder, textarea::placeholder { color: #C0CBCA; }
+
+/*
+  appearance: none quita el diseño por defecto del select
+  para poder poner nuestra propia flecha SVG como fondo.
+*/
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889693' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 36px; cursor: pointer;
+}
+
+textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+.campo-hint { font-size: 11px; color: var(--claro); margin-top: -2px; }
+
+/*
+  Campos bloqueados — no editables.
+  cursor: not-allowed muestra el símbolo de prohibido.
+*/
+input:disabled, select:disabled {
+  background: var(--fondo); color: var(--claro); cursor: not-allowed;
+}
+
+
+/* ═══════════════════════════════════════════════
+   9. BOTONES
+*/
+.btn-primary {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 18px; background: var(--principal); color: white;
+  border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--secundario); }
+
+.btn-secondary {
+  padding: 10px 18px; background: none;
+  border: 1.5px solid var(--borde); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--texto-suave); cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--claro); color: var(--texto); }
+
+.btn-primary svg, .btn-secondary svg {
+  width: 14px; height: 14px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+
+/* ═══════════════════════════════════════════════
+   10. CARDS Y UTILIDADES
+*/
+.card { background: var(--blanco); border-radius: 10px; overflow: hidden; }
+
+.divisor { height: 1px; background: var(--borde); margin: 16px 0; }
+
+.requeridos-hint { font-size: 12px; color: var(--claro); }
+.requeridos-hint span { color: var(--secundario); }
+
+
+/* ═══════════════════════════════════════════════
+   11. PÁGINA — Contenido y encabezado
+   Compartido en los 6 archivos principales.
+*/
+.contenido {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* ═══════════════════════════════════════════════
+   12. FORMULARIOS — Estructura compartida
+   Usado en nuevo-equipo y registrar-movimiento.
+*/
+.form-wrap { background: var(--blanco); border-radius: 10px; overflow: hidden; }
+
+.form-seccion { padding: 24px 28px; }
+.form-seccion + .form-seccion { border-top: 1px solid var(--fondo); }
+
+.seccion-titulo {
+  font-size: 12px; font-weight: 600; color: var(--claro);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.seccion-titulo svg {
+  width: 14px; height: 14px; stroke: var(--claro); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.campos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.campo-full  { grid-column: 1 / -1; }
+
+.form-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 28px; border-top: 1px solid var(--fondo);
+}
+
+.btn-cancelar {
+  padding: 10px 20px; background: none; border: 1.5px solid var(--borde);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-weight: 500; color: var(--texto-suave); cursor: pointer; transition: all 0.15s;
+}
+.btn-cancelar:hover { border-color: var(--claro); color: var(--texto); }
+
+.btn-guardar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 22px; background: var(--principal); color: white;
+  border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-guardar svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.btn-guardar:hover { background: var(--secundario); }
+
+/* ═══════════════════════════════════════════════
+   13. TABLAS — Estructura compartida
+   Usado en equipos y usuarios.
+*/
+.tabla-wrap { background: var(--blanco); border-radius: 10px; overflow: hidden; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead tr { background: var(--fondo); }
+thead th {
+  padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--claro); letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap;
+}
+thead th:first-child { padding-left: 20px; }
+thead th:last-child  { padding-right: 20px; text-align: right; }
+
+tbody tr { transition: background 0.12s; cursor: pointer; }
+tbody tr:hover { background: var(--fondo); }
+tbody td { padding: 12px 16px; font-size: 13px; color: var(--texto); vertical-align: middle; }
+tbody td:first-child { padding-left: 20px; }
+tbody td:last-child  { padding-right: 20px; text-align: right; }
+tbody tr + tr td { border-top: 1px solid var(--fondo); }
+
+.filtros { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+
+.input-buscar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--blanco); padding: 9px 14px; border-radius: 8px;
+  flex: 1; max-width: 320px;
+}
+.input-buscar svg { width: 15px; height: 15px; stroke: var(--claro); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.input-buscar input { border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--texto); background: transparent; width: 100%; }
+.input-buscar input::placeholder { color: #C0CBCA; }
+
+.select-filtro {
+  padding: 9px 32px 9px 14px; background: var(--blanco); border: none;
+  border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--texto-suave); cursor: pointer; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889693' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+
+.total-registros { margin-left: auto; font-size: 12px; color: var(--claro); }
+
+.btn-nuevo {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 18px; background: var(--principal); color: white;
+  border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-nuevo svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.btn-nuevo:hover { background: var(--secundario); }
+
+.acciones { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.btn-accion {
+  width: 30px; height: 30px; border-radius: 6px; border: none;
+  background: transparent; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: background 0.12s;
+}
+.btn-accion svg { width: 15px; height: 15px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-top: 1px solid var(--fondo); }
+.pag-info { font-size: 12px; color: var(--claro); }
+.pag-botones { display: flex; align-items: center; gap: 4px; }
+.pag-btn {
+  width: 30px; height: 30px; border-radius: 6px; border: none;
+  background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--texto-suave); cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pag-btn:hover  { background: var(--fondo); color: var(--principal); }
+.pag-btn.active { background: var(--principal); color: white; font-weight: 600; }
+.pag-btn svg    { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
