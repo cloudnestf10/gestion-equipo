@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Equipos — Usuarios</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+
+  /* ═══════════════════════════
+     CONTENIDO
+  ═══════════════════════════ */
+  .contenido {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  /* ═══════════════════════════
+     TABLA DE USUARIOS
+  ═══════════════════════════ */
+
+  /* Avatar usuario */
+  .usuario-info { display: flex; align-items: center; gap: 12px; }
+
+  .usuario-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: white; flex-shrink: 0;
+  }
+
+  .avatar-verde   { background: linear-gradient(135deg, #195852, #1E9282); }
+  .avatar-azul    { background: linear-gradient(135deg, #1a5276, #2980b9); }
+  .avatar-morado  { background: linear-gradient(135deg, #6c3483, #9b59b6); }
+  .avatar-naranja { background: linear-gradient(135deg, #784212, #d35400); }
+  .avatar-gris    { background: linear-gradient(135deg, #566573, #839192); }
+
+  .usuario-nombre { font-size: 13px; font-weight: 500; color: var(--texto); }
+  .usuario-email  { font-size: 12px; color: var(--claro); margin-top: 2px; }
+
+  /* Badge de rol */
+  .badge-rol {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  .badge-rol.admin    { background: rgba(25,88,82,0.1);   color: var(--principal); }
+  .badge-rol.operador { background: rgba(30,146,130,0.1); color: var(--secundario); }
+
+  /* Badge activo/inactivo */
+  .badge-estado {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  }
+
+  .badge-estado::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .badge-estado.activo   { background: rgba(30,146,130,0.1); color: var(--secundario); }
+  .badge-estado.activo::before { background: var(--secundario); }
+  .badge-estado.inactivo { background: rgba(136,150,147,0.15); color: var(--claro); }
+  .badge-estado.inactivo::before { background: var(--claro); }
+
+  /* Equipos asignados */
+  .equipos-count {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--texto-suave);
+  }
+
+  .equipos-count svg { width: 14px; height: 14px; stroke: var(--claro); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .equipos-count a { color: var(--secundario); text-decoration: none; font-weight: 500; font-size: 12px; }
+  .equipos-count a:hover { text-decoration: underline; }
+
+  /* Acciones */
+
+  .btn-accion.editar svg  { stroke: var(--claro); }
+  .btn-accion.editar:hover { background: rgba(136,150,147,0.12); }
+
+  .btn-accion.activar svg  { stroke: var(--secundario); }
+  .btn-accion.activar:hover { background: rgba(30,146,130,0.1); }
+
+  .btn-accion.desactivar svg  { stroke: var(--error); }
+  .btn-accion.desactivar:hover { background: rgba(220,53,69,0.08); }
+
+  /* Toggle switch */
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; }
+
+  .toggle {
+    position: relative; width: 36px; height: 20px;
+    cursor: pointer;
+  }
+
+  .toggle input { display: none; }
+
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: var(--borde); border-radius: 20px;
+    transition: background 0.2s;
+  }
+
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; left: 3px; top: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .toggle input:checked + .toggle-slider { background: var(--secundario); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+  /* ═══════════════════════════
+     MODAL NUEVO USUARIO
+  ═══════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200;
+  }
+
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--blanco);
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-titulo { font-size: 16px; font-weight: 600; color: var(--principal); }
+
+  .btn-cerrar {
+    width: 28px; height: 28px; border-radius: 6px; border: none;
+    background: var(--fondo); cursor: pointer; display: flex;
+    align-items: center; justify-content: center; font-size: 18px;
+    color: var(--claro); transition: all 0.15s;
+  }
+
+  .btn-cerrar:hover { background: var(--borde); color: var(--texto); }
+
+  .modal-campos { display: flex; flex-direction: column; gap: 16px; }
+
+  .modal-campo { display: flex; flex-direction: column; gap: 7px; }
+
+  .modal-campo label { font-size: 13px; font-weight: 500; color: var(--texto); }
+
+  .modal-campo input,
+  .modal-campo select {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--borde); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--texto); background: var(--blanco);
+    transition: border-color 0.2s; outline: none;
+  }
+
+  .modal-campo input:focus,
+  .modal-campo select:focus { border-color: var(--secundario); }
+
+  .modal-campo input::placeholder { color: #C0CBCA; }
+
+  .modal-campo select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889693' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+  }
+
+  .modal-footer {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px; margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid var(--fondo);
+  }
+
+  .btn-cancelar-modal {
+    padding: 9px 18px; background: none; border: 1.5px solid var(--borde);
+    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 500; color: var(--texto-suave); cursor: pointer; transition: all 0.15s;
+  }
+
+  .btn-cancelar-modal:hover { border-color: var(--claro); }
+
+  .btn-guardar-modal {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px; background: var(--principal); color: white;
+    border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+
+  .btn-guardar-modal:hover { background: var(--secundario); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Usuarios</div>
+      <div class="page-subtitle">5 usuarios registrados en el sistema</div>
+    </div>
+    <button class="btn-nuevo" onclick="document.getElementById('modal').classList.add('visible')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo usuario
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <div class="input-buscar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar por nombre o correo..."/>
+    </div>
+    <select class="select-filtro">
+      <option>Todos los roles</option>
+      <option>Administrador</option>
+      <option>Operador</option>
+    </select>
+    <select class="select-filtro">
+      <option>Todos</option>
+      <option>Activos</option>
+      <option>Inactivos</option>
+    </select>
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Equipos asignados</th>
+          <th>Fecha registro</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Admin activo -->
+        <tr>
+          <td>
+            <div class="usuario-info">
+              <div class="usuario-avatar avatar-verde">AG</div>
+              <div>
+                <div class="usuario-nombre">Ana García</div>
+                <div class="usuario-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bfded1de91d8decddcd6deffdad2cfcddaccde91dcd0d2">[email&#160;protected]</a></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-rol admin">Admin</span></td>
+          <td>
+            <div class="equipos-count">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              3 equipos &nbsp;<a href="#">Ver →</a>
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:var(--claro)">10 Ene 2024</span></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="toggleEstado(this, 'ana')">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion editar" title="Editar usuario">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Operador activo -->
+        <tr>
+          <td>
+            <div class="usuario-info">
+              <div class="usuario-avatar avatar-azul">CL</div>
+              <div>
+                <div class="usuario-nombre">Carlos López</div>
+                <div class="usuario-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="385b594a54574b165457485d42785d55484a5d4b59165b5755">[email&#160;protected]</a></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-rol operador">Operador</span></td>
+          <td>
+            <div class="equipos-count">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              5 equipos &nbsp;<a href="#">Ver →</a>
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:var(--claro)">15 Ene 2024</span></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="toggleEstado(this, 'carlos')">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion editar" title="Editar usuario">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Operador activo -->
+        <tr>
+          <td>
+            <div class="usuario-info">
+              <div class="usuario-avatar avatar-morado">MT</div>
+              <div>
+                <div class="usuario-nombre">María Torres</div>
+                <div class="usuario-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ec818d9e858dc298839e9e899fac89819c9e899f8dc28f8381">[email&#160;protected]</a></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-rol operador">Operador</span></td>
+          <td>
+            <div class="equipos-count">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              2 equipos &nbsp;<a href="#">Ver →</a>
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:var(--claro)">20 Feb 2024</span></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="toggleEstado(this, 'maria')">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion editar" title="Editar usuario">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Operador activo -->
+        <tr>
+          <td>
+            <div class="usuario-info">
+              <div class="usuario-avatar avatar-naranja">LR</div>
+              <div>
+                <div class="usuario-nombre">Luis Ramírez</div>
+                <div class="usuario-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8de1f8e4fea3ffece0e4ffe8f7cde8e0fdffe8feeca3eee2e0">[email&#160;protected]</a></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-rol operador">Operador</span></td>
+          <td>
+            <div class="equipos-count">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              7 equipos &nbsp;<a href="#">Ver →</a>
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:var(--claro)">01 Mar 2024</span></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="toggleEstado(this, 'luis')">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion editar" title="Editar usuario">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Usuario inactivo -->
+        <tr style="opacity: 0.6;">
+          <td>
+            <div class="usuario-info">
+              <div class="usuario-avatar avatar-gris">PR</div>
+              <div>
+                <div class="usuario-nombre">Pedro Ruiz</div>
+                <div class="usuario-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="40302524322f6e3235293a00252d30322533216e232f2d">[email&#160;protected]</a></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-rol operador">Operador</span></td>
+          <td>
+            <div class="equipos-count">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              0 equipos
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:var(--claro)">05 Mar 2024</span></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" onchange="toggleEstado(this, 'pedro')">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion editar" title="Editar usuario">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="paginacion">
+      <span class="pag-info">Mostrando 1–5 de 5 usuarios</span>
+      <div class="pag-botones">
+        <button class="pag-btn">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="pag-btn active">1</button>
+        <button class="pag-btn">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL NUEVO USUARIO -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo">Nuevo usuario</span>
+      <button class="btn-cerrar" onclick="document.getElementById('modal').classList.remove('visible')">×</button>
+    </div>
+    <div class="modal-campos">
+      <div class="modal-campo">
+        <label>Nombre completo <span style="color:var(--secundario)">*</span></label>
+        <input type="text" placeholder="Ej: Juan Pérez"/>
+      </div>
+      <div class="modal-campo">
+        <label>Correo electrónico <span style="color:var(--secundario)">*</span></label>
+        <input type="text" placeholder="juan.perez@empresa.com"/>
+      </div>
+      <div class="modal-campo">
+        <label>Contraseña temporal <span style="color:var(--secundario)">*</span></label>
+        <input type="password" placeholder="Mínimo 8 caracteres"/>
+      </div>
+      <div class="modal-campo">
+        <label>Rol <span style="color:var(--secundario)">*</span></        <option value="">Selecciona un rol</option>
+          <option>Administrador</option>
+          <option>Operador</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar-modal" onclick="document.getElementById('modal').classList.remove('visible')">Cancelar</button>
+      <button class="btn-guardar-modal">Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleEstado(checkbox, nombre) {
+    const fila = checkbox.closest('tr');
+    fila.style.opacity = checkbox.checked ? '1' : '0.6';
+  }
+</script>
+<script src="js/navbar.js"></script>
+</body>
+</html>

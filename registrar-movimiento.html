@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Equipos — Registrar Movimiento</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+
+  /* CONTENIDO */
+  .contenido { max-width: 780px; margin: 0 auto; padding: 28px 24px; }
+
+  /* Resumen del equipo */
+  .equipo-resumen {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--blanco); border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 16px;
+  }
+
+  .equipo-icono-wrap {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: rgba(25,88,82,0.07);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .equipo-icono-wrap svg { width: 20px; height: 20px; stroke: var(--principal); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .equipo-resumen-info { flex: 1; }
+  .equipo-resumen-nombre { font-size: 15px; font-weight: 600; color: var(--texto); }
+  .equipo-resumen-sub { font-size: 12px; color: var(--claro); margin-top: 3px; }
+
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .badge.funcional     { background: rgba(30,146,130,0.1);   color: var(--secundario); }
+  .badge.funcional::before { background: var(--secundario); }
+  .badge.mantenimiento { background: rgba(245,158,11,0.1);   color: #D97706; }
+  .badge.mantenimiento::before { background: #F59E0B; }
+  .badge.baja          { background: rgba(220,53,69,0.1);    color: var(--error); }
+  .badge.baja::before  { background: var(--error); }
+
+  /* FORM */
+  .campo { display: flex; flex-direction: column; gap: 7px; }
+
+  label { font-size: 13px; font-weight: 500; color: var(--texto); }
+  .requerido { color: var(--secundario); margin-left: 2px; }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--borde); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--texto); background: var(--blanco);
+    transition: border-color 0.2s; outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--secundario); }
+  input::placeholder, textarea::placeholder { color: #C0CBCA; }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889693' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer;
+  }
+
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  .campo-hint { font-size: 11px; color: var(--claro); margin-top: -2px; }
+
+  /* Tipos de movimiento */
+  .tipos-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .tipo-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px 8px; border-radius: 10px;
+    border: 1.5px solid var(--borde); background: var(--blanco);
+    cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+
+  .tipo-btn:hover { border-color: var(--secundario); }
+
+  .tipo-btn.selected {
+    border-color: var(--principal);
+    background: rgba(25,88,82,0.05);
+  }
+
+  .tipo-icono {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .tipo-icono svg { width: 18px; height: 18px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .tipo-icono.ingreso     { background: rgba(30,146,130,0.1); }
+  .tipo-icono.ingreso svg { stroke: var(--secundario); }
+  .tipo-icono.traslado     { background: rgba(25,88,82,0.08); }
+  .tipo-icono.traslado svg { stroke: var(--principal); }
+  .tipo-icono.prestamo     { background: rgba(245,158,11,0.1); }
+  .tipo-icono.prestamo svg { stroke: #D97706; }
+  .tipo-icono.mantenimiento     { background: rgba(136,150,147,0.12); }
+  .tipo-icono.mantenimiento svg { stroke: var(--claro); }
+  .tipo-icono.baja     { background: rgba(220,53,69,0.08); }
+  .tipo-icono.baja svg { stroke: var(--error); }
+
+  .tipo-nombre { font-size: 11px; font-weight: 500; color: var(--texto-suave); }
+  .tipo-btn.selected .tipo-nombre { color: var(--principal); font-weight: 600; }
+
+  /* Flecha entre origen y destino */
+  .origen-destino {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .flecha-medio {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding-top: 22px;
+  }
+
+  .flecha-medio svg { width: 20px; height: 20px; stroke: var(--claro); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .sub-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Estado visual origen → destino */
+  .estado-cambio {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: var(--fondo); border-radius: 8px;
+  }
+
+  .estado-cambio .badge { flex-shrink: 0; }
+  .estado-cambio svg { width: 16px; height: 16px; stroke: var(--claro); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* Footer */
+
+  .requeridos-hint { font-size: 12px; color: var(--claro); }
+  .requeridos-hint span { color: var(--secundario); }
+
+  /* Campos deshabilitados */
+  input:disabled, select:disabled {
+    background: var(--fondo); color: var(--claro); cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Equipos</a>
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    <a href="#">Dell XPS 15 — EQ-089</a>
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    <span>Registrar movimiento</span>
+  </div>
+
+  <div class="page-header">
+    <div class="page-title">Registrar movimiento</div>
+    <div class="page-subtitle">Documenta el traslado, préstamo o cambio de estado del equipo</div>
+  </div>
+
+  <!-- Resumen del equipo -->
+  <div class="equipo-resumen">
+    <div class="equipo-icono-wrap">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    </div>
+    <div class="equipo-resumen-info">
+      <div class="equipo-resumen-nombre">Dell XPS 15</div>
+      <div class="equipo-resumen-sub">EQ-089 &nbsp;·&nbsp; SN: DL-2024-089 &nbsp;·&nbsp; Reclusorio Oriente · Sala de Juntas A</div>
+    </div>
+    <span class="badge funcional">Funcional</span>
+  </div>
+
+  <div class="form-wrap">
+
+    <!-- SECCIÓN 1: Tipo de movimiento -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Tipo de movimiento <span style="color:var(--secundario);margin-left:2px">*</span>
+      </div>
+
+      <div class="tipos-grid" style="grid-template-columns: repeat(5, 1fr);">
+
+        <button type="button" class="tipo-btn selected" onclick="selectTipo(this, 'asignacion')">
+          <div class="tipo-icono traslado">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <span class="tipo-nombre">Asignación</span>
+        </button>
+
+        <button type="button" class="tipo-btn" onclick="selectTipo(this, 'retorno')">
+          <div class="tipo-icono prestamo">
+            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+          </div>
+          <span class="tipo-nombre">Retorno</span>
+        </button>
+
+        <button type="button" class="tipo-btn" onclick="selectTipo(this, 'taller')">
+          <div class="tipo-icono mantenimiento">
+            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <span class="tipo-nombre">Envío a Taller</span>
+        </button>
+
+        <button type="button" class="tipo-btn" onclick="selectTipo(this, 'traslado')">
+          <div class="tipo-icono traslado" style="background:rgba(25,88,82,0.08)">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </div>
+          <span class="tipo-nombre">Traslado</span>
+        </button>
+
+        <button type="button" class="tipo-btn" onclick="selectTipo(this, 'baja')">
+          <div class="tipo-icono baja">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <span class="tipo-nombre">Baja</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: Fecha -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Fecha y hora
+      </div>
+      <div class="campos-grid">
+        <div class="campo">
+          <label>Fecha <span class="requerido">*</span></label>
+          <input type="date" id="fecha-mov" />
+        </div>
+        <div class="campo">
+          <label>Hora <span class="requerido">*</span></label>
+          <input type="time" id="hora-mov" />
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: Origen → Destino -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Ubicación
+      </div>
+
+      <div class="origen-destino">
+
+        <!-- Origen -->
+        <div class="sub-grid">
+          <div style="font-size:11px;font-weight:600;color:var(--claro);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Origen</div>
+          <div class="campo">
+            <label>Edificio</label>
+            <input type="text" value="Reclusorio Oriente" disabled/>
+          </div>
+          <div class="campo">
+            <label>Espacio</label>
+            <input type="text" value="Sala de Juntas A" disabled/>
+          </div>
+        </div>
+
+        <!-- Flecha -->
+        <div class="flecha-medio">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+
+        <!-- Destino -->
+        <div class="sub-grid">
+          <div style="font-size:11px;font-weight:600;color:var(--secundario);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Destino</div>
+          <div class="campo">
+            <label>Edificio <span class="requerido">*</span></label>
+            <select>
+              <option value="">Selecciona edificio</option>
+              <option>Reclusorio Oriente</option>
+              <option>Reclusorio Sur</option>
+              <option>Reclusorio Norte</option>
+              <option>Santa Marta</option>
+              <option>Dr. Lavista</option>
+              <option>Sullivan</option>
+              <option>Plaza Juárez</option>
+              <option>Patriotismo</option>
+              <option>Fray Servando</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Espacio específico</label>
+            <input type="text" placeholder="Ej: Site, Sala 1, Rack A..."/>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Preview estado automático -->
+      <div class="estado-cambio" id="estado-cambio-preview" style="margin-top:16px;">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--claro);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:12px;color:var(--texto-suave);">Estado resultante:</span>
+        <span class="badge funcional" id="badge-estado-auto">Funcional</span>
+        <span style="font-size:12px;color:var(--claro);margin-left:2px" id="texto-estado-auto">El equipo mantiene su estado actual</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5: Asignación y notas -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Asignación y notas
+      </div>
+      <div class="campos-grid">
+        <div class="campo campo-full">
+          <label>Asignado a</label>
+          <select>
+            <option value="">Sin asignar</option>
+            <option selected>Ana García</option>
+            <option>Carlos López</option>
+            <option>María Torres</option>
+            <option>Luis Ramírez</option>
+          </select>
+          <span class="campo-hint">Quién recibe o tendrá el equipo después del movimiento</span>
+        </div>
+        <div class="campo campo-full">
+          <label>Notas</label>
+          <textarea placeholder="Describe el motivo del movimiento, observaciones, condición del equipo..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="form-footer">
+      <span class="requeridos-hint"><span>*</span> Campos obligatorios</span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-cancelar">Cancelar</button>
+        <button class="btn-guardar">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Registrar movimiento
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Fecha y hora actuales por defecto
+  const ahora = new Date();
+  document.getElementById('fecha-mov').value = ahora.toISOString().split('T')[0];
+  document.getElementById('hora-mov').value = ahora.toTimeString().slice(0,5);
+
+  // Estado automático según tipo de movimiento
+  const estadoAuto = {
+    'asignacion': { clase: 'funcional',  texto: 'Funcional', hint: 'El equipo se entrega al colaborador' },
+    'retorno':    { clase: 'funcional',  texto: 'Funcional', hint: 'El equipo regresa al almacén' },
+    'taller':     { clase: 'dañado',     texto: 'Dañado',    hint: 'El equipo sale a reparación — estado cambia a Dañado' },
+    'traslado':   { clase: 'funcional',  texto: 'Funcional', hint: 'El equipo cambia de edificio o piso' },
+    'baja':       { clase: 'baja',       texto: 'Baja',      hint: 'El equipo sale definitivamente del inventario' },
+  };
+
+  function selectTipo(btn, tipo) {
+    document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    const info = estadoAuto[tipo];
+    const badge = document.getElementById('badge-estado-auto');
+    const texto = document.getElementById('texto-estado-auto');
+    badge.className = 'badge ' + info.clase;
+    badge.textContent = info.texto;
+    texto.textContent = info.hint;
+  }
+</script>
+<script src="js/navbar.js"></script>
+</body>
+</html>

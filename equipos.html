@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Equipos — Equipos</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+
+  /* ═══════════════════════════
+     CONTENIDO
+  ═══════════════════════════ */
+  .contenido {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  /* Page header */
+
+  /* Filtros */
+
+  /* ═══════════════════════════
+     TABLA
+  ═══════════════════════════ */
+
+  /* Separador entre filas */
+
+  /* Info del equipo */
+  .equipo-info { display: flex; align-items: center; gap: 8px; }
+
+  .equipo-icono {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: rgba(25,88,82,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .equipo-icono svg {
+    width: 14px; height: 14px;
+    stroke: var(--principal); fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .equipo-nombre {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+    white-space: nowrap;
+  }
+
+  .equipo-serie {
+    font-size: 11px;
+    color: var(--claro);
+    margin-top: 1px;
+  }
+
+  .id-inv {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--secundario);
+    background: rgba(30,146,130,0.08);
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+
+  /* Badges de estado */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .badge.funcional     { background: rgba(30,146,130,0.1);   color: var(--secundario); }
+  .badge.funcional::before { background: var(--secundario); }
+  .badge.danado {  background: rgba(245,158,11,0.1);   color: #D97706; }
+  .badge.danado::before { background: #F59E0B; }
+  .badge.baja          { background: rgba(220,53,69,0.1);    color: var(--error); }
+  .badge.baja::before  { background: var(--error); }
+  .badge.garantia      { background: rgba(136,150,147,0.15); color: var(--claro); }
+  .badge.garantia::before { background: var(--claro); }
+
+  /* Texto de ubicación y asignado */
+  .ubicacion {
+    font-size: 12px;
+    color: var(--texto-suave);
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Acciones */
+
+  .btn-accion.ver svg   { stroke: var(--secundario); }
+  .btn-accion.mover svg { stroke: var(--principal); }
+  .btn-accion.editar svg { stroke: var(--claro); }
+
+  .btn-accion.ver:hover   { background: rgba(30,146,130,0.1); }
+  .btn-accion.mover:hover { background: rgba(25,88,82,0.08); }
+  .btn-accion.editar:hover { background: rgba(136,150,147,0.12); }
+
+  /* Paginación */
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Equipos</div>
+      <div class="page-subtitle">124 equipos registrados en el sistema</div>
+    </div>
+    <button class="btn-nuevo">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo equipo
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <div class="input-buscar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar por nombre, serie o inventario..."/>
+    </div>
+    <select class="select-filtro">
+      <option value="">Todos los estados</option>
+      <option>Funcional</option>
+      <option>Dañado</option>
+      <option>Baja</option>
+      <option>Cambio por Garantía</option>
+    </select>
+    <select class="select-filtro">
+      <option value="">Todas las categorías</option>
+      <option>Laptop</option>
+      <option>Cámara</option>
+      <option>Micrófono</option>
+      <option>Monitor</option>
+      <option>Switch</option>
+    </select>
+    <select class="select-filtro">
+      <option value="">Todos los edificios</option>
+      <option>Reclusorio Oriente</option>
+      <option>Reclusorio Sur</option>
+      <option>Reclusorio Norte</option>
+      <option>Santa Marta</option>
+      <option>Dr. Lavista</option>
+      <option>Sullivan</option>
+      <option>Plaza Juárez</option>
+      <option>Patriotismo</option>
+      <option>Fray Servando</option>
+    </select>
+    <span class="total-registros">Mostrando 1–10 de 124</span>
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>No. Inventario</th>
+          <th>Categoría</th>
+          <th>Estado</th>
+          <th>Edificio</th>
+          <th>Espacio</th>
+          <th>Asignado a</th>
+          <th>Fecha ingreso</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">Dell XPS 15</div>
+                <div class="equipo-serie">SN: DL-2024-089</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-089</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Laptop</span></td>
+          <td><span class="badge funcional">Funcional</span></td>
+          <td><span class="ubicacion">Reclusorio Oriente</span></td>
+          <td><span class="ubicacion">Sala de Juntas A</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Ana García</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">15 Mar 2024</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">Sony A7 III</div>
+                <div class="equipo-serie">SN: SN-2023-045</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-045</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Cámara</span></td>
+          <td><span class="badge funcional">Funcional</span></td>
+          <td><span class="ubicacion">Reclusorio Sur</span></td>
+          <td><span class="ubicacion">Cuarto de Control</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Carlos López</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">02 Ene 2023</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">Shure SM7B</div>
+                <div class="equipo-serie">SN: SH-2023-032</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-032</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Micrófono</span></td>
+          <td><span class="badge.danado">Dañado</span></td>
+          <td><span class="ubicacion">Santa Marta</span></td>
+          <td><span class="ubicacion">— En tránsito</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">—</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">10 Jun 2023</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">LG 27UK850</div>
+                <div class="equipo-serie">SN: LG-2022-011</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-011</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Monitor</span></td>
+          <td><span class="badge baja">Baja</span></td>
+          <td><span class="ubicacion">Dr. Lavista</span></td>
+          <td><span class="ubicacion">—</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">—</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">05 Mar 2022</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">TP-Link TL-SG1024</div>
+                <div class="equipo-serie">SN: TP-2024-088</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-088</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Switch</span></td>
+          <td><span class="badge funcional">Funcional</span></td>
+          <td><span class="ubicacion">Sullivan</span></td>
+          <td><span class="ubicacion">Site Principal</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">—</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">20 Mar 2024</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ESTADO: Cambio por Garantía -->
+        <tr>
+          <td>
+            <div class="equipo-info">
+              <div class="equipo-icono">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div>
+                <div class="equipo-nombre">HP EliteBook 840</div>
+                <div class="equipo-serie">SN: HP-2023-061</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="id-inv">EQ-061</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">Laptop</span></td>
+          <td><span class="badge garantia">Cambio por Garantía</span></td>
+          <td><span class="ubicacion">Plaza Juárez</span></td>
+          <td><span class="ubicacion">— En proceso</span></td>
+          <td><span style="font-size:13px;color:var(--texto-suave)">—</span></td>
+          <td><span style="font-size:12px;color:var(--claro)">08 Sep 2023</span></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-accion ver" title="Ver detalle">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-accion mover" title="Registrar movimiento">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="paginacion">
+      <span class="pag-info">Mostrando 1–5 de 124 equipos</span>
+      <div class="pag-botones">
+        <button class="pag-btn nav">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="pag-btn active">1</button>
+        <button class="pag-btn">2</button>
+        <button class="pag-btn">3</button>
+        <span style="font-size:13px;color:var(--claro);padding:0 4px">...</span>
+        <button class="pag-btn">13</button>
+        <button class="pag-btn nav">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/navbar.js"></script>
+</body>
+</html>

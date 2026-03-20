@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Equipos — Dashboard</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+
+  /* ═══════════════════════════
+     CONTENIDO
+  ═══════════════════════════ */
+  .contenido {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 32px;
+  }
+
+  /* Page header */
+
+  .fecha-hoy {
+    font-size: 12px;
+    color: var(--claro);
+    text-align: right;
+  }
+
+  /* ═══════════════════════════
+     TARJETAS DE RESUMEN
+  ═══════════════════════════ */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stat-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--texto-suave);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .stat-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-icon svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+  .stat-icon.verde     { background: rgba(25,88,82,0.08);  }
+  .stat-icon.verde svg { stroke: var(--principal); }
+  .stat-icon.teal      { background: rgba(30,146,130,0.1); }
+  .stat-icon.teal svg  { stroke: var(--secundario); }
+  .stat-icon.gris      { background: rgba(136,150,147,0.12); }
+  .stat-icon.gris svg  { stroke: var(--claro); }
+  .stat-icon.rojo      { background: rgba(220,53,69,0.08); }
+  .stat-icon.rojo svg  { stroke: var(--error); }
+
+  .stat-numero {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--texto);
+    line-height: 1;
+  }
+
+  .stat-detalle {
+    font-size: 12px;
+    color: var(--texto-suave);
+  }
+
+  .stat-detalle span {
+    color: var(--secundario);
+    font-weight: 500;
+  }
+
+  /* ═══════════════════════════
+     SECCIÓN DE DOS COLUMNAS
+  ═══════════════════════════ */
+  .dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .seccion {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .seccion-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .seccion-titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--texto);
+  }
+
+  .ver-todo {
+    font-size: 12px;
+    color: var(--secundario);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .ver-todo:hover { text-decoration: underline; }
+
+  /* Lista de movimientos recientes */
+  .lista-movimientos {
+    padding: 8px 0;
+  }
+
+  .movimiento-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--fondo);
+    transition: background 0.15s;
+  }
+
+  .movimiento-item:last-child { border-bottom: none; }
+  .movimiento-item:hover { background: var(--fondo); }
+
+  .mov-icono {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mov-icono svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+  .mov-icono.ingreso   { background: rgba(30,146,130,0.1); }
+  .mov-icono.ingreso svg { stroke: var(--secundario); }
+  .mov-icono.traslado  { background: rgba(25,88,82,0.08); }
+  .mov-icono.traslado svg { stroke: var(--principal); }
+  .mov-icono.baja      { background: rgba(220,53,69,0.08); }
+  .mov-icono.baja svg  { stroke: var(--error); }
+  .mov-icono.mant      { background: rgba(136,150,147,0.12); }
+  .mov-icono.mant svg  { stroke: var(--claro); }
+
+  .mov-info { flex: 1; min-width: 0; }
+
+  .mov-equipo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mov-detalle {
+    font-size: 12px;
+    color: var(--texto-suave);
+    margin-top: 2px;
+  }
+
+  .mov-fecha {
+    font-size: 11px;
+    color: var(--claro);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Estados de equipos */
+  .estados-lista {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .estado-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .estado-nombre {
+    font-size: 13px;
+    color: var(--texto);
+    width: 140px;
+    flex-shrink: 0;
+  }
+
+  .barra-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--fondo);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .barra-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+
+  .barra-fill.funcional    { background: var(--secundario); }
+  .barra-fill.mantenimiento { background: #F59E0B; }
+  .barra-fill.baja         { background: var(--error); }
+  .barra-fill.garantia     { background: var(--claro); }
+
+  .estado-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texto);
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Badge de estado */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge.funcional     { background: rgba(30,146,130,0.1);  color: var(--secundario); }
+  .badge.mantenimiento { background: rgba(245,158,11,0.1);  color: #D97706; }
+  .badge.baja          { background: rgba(220,53,69,0.1);   color: var(--error); }
+  .badge.garantia      { background: rgba(136,150,147,0.15); color: var(--claro); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-subtitle">Resumen general del inventario</div>
+    </div>
+    <div class="fecha-hoy" id="fecha-hoy"></div>
+  </div>
+
+  <!-- Tarjetas de resumen -->
+  <div class="cards-grid">
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <span class="stat-label">Total Equipos</span>
+        <div class="stat-icon verde">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+      </div>
+      <div class="stat-numero">124</div>
+      <div class="stat-detalle"><span>+3</span> este mes</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <span class="stat-label">Funcionales</span>
+        <div class="stat-icon teal">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+      <div class="stat-numero">98</div>
+      <div class="stat-detalle"><span>79%</span> del total</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <span class="stat-label">Mantenimiento</span>
+        <div class="stat-icon gris">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+      </div>
+      <div class="stat-numero">18</div>
+      <div class="stat-detalle"><span>15%</span> del total</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <span class="stat-label">Bajas</span>
+        <div class="stat-icon rojo">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+      </div>
+      <div class="stat-numero">8</div>
+      <div class="stat-detalle"><span>6%</span> del total</div>
+    </div>
+
+  </div>
+
+  <!-- Dos columnas -->
+  <div class="dos-columnas">
+
+    <!-- Movimientos recientes -->
+    <div class="seccion">
+      <div class="seccion-header">
+        <span class="seccion-titulo">Movimientos recientes</span>
+        <a href="#" class="ver-todo">Ver todos →</a>
+      </div>
+      <div class="lista-movimientos">
+
+        <div class="movimiento-item">
+          <div class="mov-icono ingreso">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          </div>
+          <div class="mov-info">
+            <div class="mov-equipo">Laptop Dell XPS — EQ-089</div>
+            <div class="mov-detalle">Ingreso · Sala de Juntas A</div>
+          </div>
+          <div class="mov-fecha">Hoy 10:24</div>
+        </div>
+
+        <div class="movimiento-item">
+          <div class="mov-icono traslado">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </div>
+          <div class="mov-info">
+            <div class="mov-equipo">Cámara Sony A7 — EQ-045</div>
+            <div class="mov-detalle">Traslado · Site → Cuarto de Control</div>
+          </div>
+          <div class="mov-fecha">Hoy 09:15</div>
+        </div>
+
+        <div class="movimiento-item">
+          <div class="mov-icono mant">
+            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <div class="mov-info">
+            <div class="mov-equipo">Micrófono Shure SM7 — EQ-032</div>
+            <div class="mov-detalle">Mantenimiento · Enviado a proveedor</div>
+          </div>
+          <div class="mov-fecha">Ayer 16:40</div>
+        </div>
+
+        <div class="movimiento-item">
+          <div class="mov-icono baja">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="mov-info">
+            <div class="mov-equipo">Monitor LG 27" — EQ-011</div>
+            <div class="mov-detalle">Baja · Daño irreparable</div>
+          </div>
+          <div class="mov-fecha">Ayer 11:00</div>
+        </div>
+
+        <div class="movimiento-item">
+          <div class="mov-icono ingreso">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          </div>
+          <div class="mov-info">
+            <div class="mov-equipo">Switch TP-Link — EQ-088</div>
+            <div class="mov-detalle">Ingreso · Site Principal</div>
+          </div>
+          <div class="mov-fecha">20 Mar</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Estado de equipos -->
+    <div class="seccion">
+      <div class="seccion-header">
+        <span class="seccion-titulo">Equipos por estado</span>
+        <a href="#" class="ver-todo">Ver detalle →</a>
+      </div>
+      <div class="estados-lista">
+
+        <div class="estado-row">
+          <span class="estado-nombre">Funcional</span>
+          <div class="barra-wrap">
+            <div class="barra-fill funcional" style="width: 79%"></div>
+          </div>
+          <span class="estado-count">98</span>
+        </div>
+
+        <div class="estado-row">
+          <span class="estado-nombre">Mantenimiento</span>
+          <div class="barra-wrap">
+            <div class="barra-fill mantenimiento" style="width: 15%"></div>
+          </div>
+          <span class="estado-count">18</span>
+        </div>
+
+        <div class="estado-row">
+          <span class="estado-nombre">Baja</span>
+          <div class="barra-wrap">
+            <div class="barra-fill baja" style="width: 6%"></div>
+          </div>
+          <span class="estado-count">8</span>
+        </div>
+
+        <div class="estado-row">
+          <span class="estado-nombre">Cambio Garantía</span>
+          <div class="barra-wrap">
+            <div class="barra-fill garantia" style="width: 0%"></div>
+          </div>
+          <span class="estado-count">0</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // Fecha actual
+  const fecha = new Date();
+  const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('fecha-hoy').textContent =
+    fecha.toLocaleDateString('es-MX', opciones);
+</script>
+
+<script src="js/navbar.js"></script>
+</body>
+</html>

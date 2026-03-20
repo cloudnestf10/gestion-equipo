@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Equipos — Nuevo Equipo</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+
+  /* ═══════════════════════════
+     CONTENIDO
+  ═══════════════════════════ */
+  .contenido {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+
+  /* Grid de campos */
+
+  .campo { display: flex; flex-direction: column; gap: 7px; }
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+  }
+
+  .requerido { color: var(--secundario); margin-left: 2px; }
+
+  input[type="text"],
+  input[type="file"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--borde);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--texto);
+    background: var(--blanco);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--secundario);
+  }
+
+  input::placeholder, textarea::placeholder { color: #C0CBCA; }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889693' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  .campo-hint {
+    font-size: 11px;
+    color: var(--claro);
+    margin-top: -2px;
+  }
+
+  /* Upload de foto */
+  .upload-area {
+    border: 1.5px dashed var(--borde);
+    border-radius: 8px;
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--fondo);
+  }
+
+  .upload-area:hover {
+    border-color: var(--secundario);
+    background: rgba(30,146,130,0.03);
+  }
+
+  .upload-area svg {
+    width: 28px; height: 28px;
+    stroke: var(--claro); fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    margin-bottom: 10px;
+  }
+
+  .upload-texto {
+    font-size: 13px;
+    color: var(--texto-suave);
+    margin-bottom: 4px;
+  }
+
+  .upload-texto span {
+    color: var(--secundario);
+    font-weight: 500;
+  }
+
+  .upload-hint {
+    font-size: 11px;
+    color: var(--claro);
+  }
+
+  /* Preview de foto */
+  .foto-preview {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    background: var(--fondo);
+    border-radius: 8px;
+  }
+
+  .foto-preview.visible { display: flex; }
+
+  .foto-preview img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .foto-preview-nombre {
+    font-size: 13px;
+    color: var(--texto);
+    flex: 1;
+  }
+
+  .btn-quitar-foto {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--claro);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .btn-quitar-foto:hover { color: var(--error); }
+
+  /* ═══════════════════════════
+     FOOTER DEL FORM
+  ═══════════════════════════ */
+
+  /* Campos requeridos hint */
+  .requeridos-hint {
+    font-size: 12px;
+    color: var(--claro);
+  }
+
+  .requeridos-hint span { color: var(--secundario); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Equipos</a>
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    <span>Nuevo equipo</span>
+  </div>
+
+  <div class="page-header">
+    <div class="page-title">Registrar nuevo equipo</div>
+    <div class="page-subtitle">Completa los campos para agregar un equipo al inventario</div>
+  </div>
+
+  <div class="form-wrap">
+
+    <!-- SECCIÓN 1: Identificación -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Identificación del equipo
+      </div>
+      <div class="campos-grid">
+
+        <div class="campo">
+          <label>No. Inventario</label>
+          <input type="text" placeholder="Ej: EQ-090"/>
+          <span class="campo-hint">Se puede completar después al editar el equipo</span>
+        </div>
+
+        <div class="campo">
+          <label>Número de serie</label>
+          <input type="text" placeholder="Ej: DL-2024-090"/>
+          <span class="campo-hint">Número de serie del fabricante</span>
+        </div>
+
+        <div class="campo">
+          <label>Marca <span class="requerido">*</span></label>
+          <input type="text" placeholder="Ej: Dell, Sony, Shure..."/>
+        </div>
+
+        <div class="campo">
+          <label>Modelo <span class="requerido">*</span></label>
+          <input type="text" placeholder="Ej: XPS 15, A7 III..."/>
+        </div>
+
+        <div class="campo">
+          <label>Categoría <span class="requerido">*</span></label>
+          <select>
+            <option value="">Selecciona una categoría</option>
+            <option>Laptop</option>
+            <option>Cámara</option>
+            <option>Micrófono</option>
+            <option>Monitor</option>
+            <option>Switch</option>
+            <option>Proyector</option>
+            <option>Tablet</option>
+            <option>Otro</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Estado inicial <span class="requerido">*</span></label>
+          <select>
+            <option value="">Selecciona un estado</option>
+            <option selected>Funcional</option>
+            <option>Mantenimiento</option>
+            <option>Baja</option>
+            <option>Cambio por Garantía</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: Ubicación -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Ubicación
+      </div>
+      <div class="campos-grid">
+
+        <div class="campo">
+          <label>Edificio <span class="requerido">*</span></label>
+          <select id="select-edificio">
+            <option value="">Selecciona un edificio</option>
+            <option>Reclusorio Oriente</option>
+            <option>Reclusorio Sur</option>
+            <option>Reclusorio Norte</option>
+            <option>Santa Marta</option>
+            <option>Dr. Lavista</option>
+            <option>Sullivan</option>
+            <option>Plaza Juárez</option>
+            <option>Patriotismo</option>
+            <option>Fray Servando</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Piso</label>
+          <input type="text" placeholder="Ej: Piso 1, Planta Baja..."/>
+        </div>
+
+        <div class="campo">
+          <label>Tipo de espacio</label>
+          <select>
+            <option value="">Selecciona un tipo</option>
+            <option>Site</option>
+            <option>Cuarto de Control</option>
+            <option>Sala</option>
+            <option>Pasillo</option>
+            <option>Oficina</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Espacio específico</label>
+          <input type="text" placeholder="Ej: Rack A, Consola 1, Sala 2..."/>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: Asignación y contrato -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Asignación y contrato
+      </div>
+      <div class="campos-grid">
+
+        <div class="campo">
+          <label>Asignado a</label>
+          <select>
+            <option value="">Sin asignar</option>
+            <option>Ana García</option>
+            <option>Carlos López</option>
+            <option>María Torres</option>
+            <option>Luis Ramírez</option>
+          </select>
+          <span class="campo-hint">Opcional — quién tiene el equipo actualmente</span>
+        </div>
+
+        <div class="campo">
+          <label>Contrato</label>
+          <select>
+            <option value="">Sin contrato</option>
+            <option>CONT-2024-001</option>
+            <option>CONT-2024-002</option>
+            <option>CONT-2023-015</option>
+          </select>
+          <span class="campo-hint">Opcional — a qué contrato pertenece</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: Foto -->
+    <div class="form-seccion">
+      <div class="seccion-titulo">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Foto del equipo
+      </div>
+
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('input-foto').click()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="upload-texto">
+          <span>Haz clic para subir</span> o arrastra la imagen aquí
+        </div>
+        <div class="upload-hint">PNG, JPG hasta 5MB</div>
+      </div>
+
+      <div class="foto-preview" id="foto-preview">
+        <img id="foto-img" src="" alt="Preview"/>
+        <span class="foto-preview-nombre" id="foto-nombre">imagen.jpg</span>
+        <button class="btn-quitar-foto" onclick="quitarFoto()">×</button>
+      </div>
+
+      <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="mostrarPreview(event)"/>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="form-footer">
+      <span class="requeridos-hint"><span>*</span> Campos obligatorios</span>
+      <div class="btns-derecha">
+        <button class="btn-cancelar" onclick="history.back()">Cancelar</button>
+        <button class="btn-guardar">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Guardar equipo
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Preview de foto
+  function mostrarPreview(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('foto-img').src = e.target.result;
+      document.getElementById('foto-nombre').textContent = file.name;
+      document.getElementById('upload-area').style.display = 'none';
+      document.getElementById('foto-preview').classList.add('visible');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function quitarFoto() {
+    document.getElementById('input-foto').value = '';
+    document.getElementById('upload-area').style.display = 'block';
+    document.getElementById('foto-preview').classList.remove('visible');
+  }
+
+  // Drag and drop
+  const uploadArea = document.getElementById('upload-area');
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--secundario)';
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = 'var(--borde)';
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--borde)';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('foto-img').src = ev.target.result;
+        document.getElementById('foto-nombre').textContent = file.name;
+        uploadArea.style.display = 'none';
+        document.getElementById('foto-preview').classList.add('visible');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+<script src="js/navbar.js"></script>
+</body>
+</html>
