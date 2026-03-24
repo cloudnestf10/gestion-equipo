@@ -121,7 +121,7 @@ gestion-equipos/
 │
 ├── 🎨 frontend/
 │   ├── login.html
-│   ├── dashboard.html
+│   ├── resumen.html
 │   ├── equipos.html
 │   ├── nuevo-equipo.html
 │   ├── detalle-equipo.html
