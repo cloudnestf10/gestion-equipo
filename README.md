@@ -25,13 +25,13 @@ Cada equipo tiene trazabilidad completa: desde su ingreso hasta su baja, pasando
 
 | Pantalla | Descripción |
 |----------|-------------|
-| `login.html` | Acceso al sistema |
-| `resumen.html` | Resumen general y estadísticas |
-| `equipos.html` | Lista de equipos con filtros |
-| `nuevo-equipo.html` | Formulario de registro de equipo |
-| `detalle-equipo.html` | Detalle, historial y bitácora del equipo |
-| `usuarios.html` | Gestión de usuarios y roles |
-| `registrar-movimiento.html` | Registro de movimientos del equipo |
+| [login.html](./login.html) | Acceso al sistema |
+| [resumen.html](./resumen.html) | Resumen general y estadísticas |
+| [equipos.html](./equipos.html) | Lista de equipos con filtros |
+| [nuevo-equipo.html](./nuevo-equipo.html) | Formulario de registro de equipo |
+| [detalle-equipo.html](./detalle-equipo.html) | Detalle, historial y bitácora del equipo |
+| [usuarios.html](./usuarios.html) | Gestión de usuarios y roles |
+| [registrar-movimiento.html](./registrar-movimiento.html) | Registro de movimientos del equipo |
 
 ---
 
