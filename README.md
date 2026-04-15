@@ -120,13 +120,17 @@ gestion-equipos/
 ├── 📄 schema.dbml                  ← diseño de la base de datos
 │
 ├── 🎨 frontend/
+├── css/
+│   └── global.css  
+├── js/
+│   └── navbar.js
 │   ├── login.html
-│   ├── resumen.html
+│   ├── resumen.html   
 │   ├── equipos.html
 │   ├── nuevo-equipo.html
 │   ├── detalle-equipo.html
 │   ├── usuarios.html
-│   └── registrar-movimiento.html
+│   └── registrar-movimiento.htm
 │
 └── 🗄️ database/
     └── schema.sql                  ← SQL para crear las tablas
